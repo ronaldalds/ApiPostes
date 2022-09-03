@@ -13,9 +13,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from apipole.api import viewsets as poleviewsets
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from rest_framework import routers
+
+route = routers.DefaultRouter()
+route.register(r'pole', poleviewsets.PoleViewSet, basename="Pole")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include(route.urls))
 ]
