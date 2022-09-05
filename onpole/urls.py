@@ -18,10 +18,10 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
 
-route = routers.DefaultRouter()
-route.register(r'pole', poleviewsets.PoleViewSet, basename="Pole")
+route = routers.SimpleRouter()
+route.register(r'pole', poleviewsets.PoleViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(route.urls))
+    path('', include(route.urls)),
 ]
