@@ -1,7 +1,0 @@
-Pagination:
-	PageNumberPagination
-	
-
-ModelViewSet:
-	Pode reescrever metodos;
-	mudar o router
