@@ -1,6 +1,3 @@
-from datetime import datetime
-from email.policy import default
-
 from core.configs import settings
 from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer,
                         String)
