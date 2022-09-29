@@ -15,8 +15,8 @@ class UsuarioModel(settings.DBBaseModel):
     eh_admin = Column(Boolean, default=False)
     postes = relationship(
         "PosteModel",
-        cascade="all,delete-orphan",
-        back_populates="criador",
+        cascade='all,delete-orphan',
+        back_populates='criador',
         uselist=True,
-        lazy="joined"
+        lazy='joined'
     )
