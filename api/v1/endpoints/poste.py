@@ -15,6 +15,9 @@ router = APIRouter()
 # POST Poste
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=PosteSchema)
 async def post_poste(poste: PosteSchema, usuario_logado: UsuarioModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
+    """
+    Criação de postes na base de dados
+    """
     novo_poste: PosteModel = PosteModel(
         proprietario=poste.proprietario,
         tipo=poste.tipo,
@@ -46,7 +49,7 @@ async def post_poste(poste: PosteSchema, usuario_logado: UsuarioModel = Depends(
 
 # GET Postes
 @router.get('/', response_model=List[PosteSchema])
-async def get_postes(db: AsyncSession = Depends(get_session)):
+async def get_postes(db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
     async with db as session:
         query = select(PosteModel)
         result = await session.execute(query)

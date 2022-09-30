@@ -6,9 +6,13 @@ from sqlalchemy.ext.declarative import declarative_base
 
 class Settings(BaseSettings):
     API_V1_STR: str = '/api/v1'
-    DB_URL: str = 'postgresql+asyncpg://engenharia:SBzc4zC6@191.7.194.22:5432/engenharia_projetos'
+    DB_URL: str = 'postgresql+asyncpg://postgres:admin@localhost:5432/engenharia_rede'
     DBBaseModel = declarative_base()
+    """
+    import secrets
 
+    token: str = secrets.token_urlsafe(32)
+    """
     JWT_SCRET: str = '0wJX8-mFFhFsfupHUdWuePFzWDJO1WdW8rx-6Yporzg'
     ALGORITHM: str = 'HS256'
 
