@@ -1,7 +1,7 @@
-from datetime import datetime
+import datetime
 
 from core.configs import settings
-from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer,
+from sqlalchemy import (Boolean, Column, Date, Float, ForeignKey, Integer,
                         String)
 from sqlalchemy.orm import relationship
 
@@ -22,10 +22,10 @@ class PosteModel(settings.DBBaseModel):
     codigo_csi = Column(String(256), nullable=True)
     ocupacao = Column(String(256), nullable=True)
     imagem = Column(String(256), nullable=True)
-    data_creacao = Column(DateTime, default=datetime.now(), nullable=False)
-    data_atualizacao = Column(DateTime, nullable=False)
-    aprovado = Column(Boolean)
-    data_aprovacao = Column(DateTime, nullable=False)
+    data_creacao = Column(Date, nullable=False)
+    data_atualizacao = Column(Date, nullable=True)
+    aprovado = Column(Boolean, default=False)
+    data_aprovacao = Column(Date, nullable=True)
     protocolo_aprovacao = Column(String(256), nullable=True)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)

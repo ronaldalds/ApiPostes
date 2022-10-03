@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
 
-from schemas.poste_schema import PosteSchema
+from schemas.poste_schema import PosteSchemaBase
 
 
 class UsuarioSchemaBase(BaseModel):
@@ -21,7 +21,7 @@ class UsuarioSchemaCreate(UsuarioSchemaBase):
 
 
 class UsuarioSchemaPostes(UsuarioSchemaBase):
-    postes: Optional[List[PosteSchema]]
+    postes: Optional[List[PosteSchemaBase]]
 
 
 class UsuarioSchemaUp(UsuarioSchemaBase):

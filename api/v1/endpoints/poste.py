@@ -1,11 +1,12 @@
+from datetime import datetime
 from typing import List
-from unittest import result
 
 from core.deps import get_current_user, get_session
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from models.poste_model import PosteModel
 from models.usuario_model import UsuarioModel
-from schemas.poste_schema import PosteSchema
+from schemas.poste_schema import (PosteSchemaCreate, PosteSchemaRead,
+                                  PosteSchemaUp)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -13,8 +14,8 @@ router = APIRouter()
 
 
 # POST Poste
-@router.post('/', status_code=status.HTTP_201_CREATED, response_model=PosteSchema)
-async def post_poste(poste: PosteSchema, usuario_logado: UsuarioModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
+@router.post('/', status_code=status.HTTP_201_CREATED, response_model=PosteSchemaRead)
+async def post_poste(poste: PosteSchemaCreate, usuario_logado: UsuarioModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
     """
     Criação de postes na base de dados
     """
@@ -31,8 +32,7 @@ async def post_poste(poste: PosteSchema, usuario_logado: UsuarioModel = Depends(
         codigo_csi=poste.codigo_csi,
         ocupacao=poste.ocupacao,
         imagem=poste.imagem,
-        data_creacao=poste.data_creacao,
-        data_atualizacao=poste.data_atualizacao,
+        data_creacao=datetime.now(),
         aprovado=poste.aprovado,
         data_aprovacao=poste.data_aprovacao,
         latitude=poste.latitude,
@@ -48,7 +48,7 @@ async def post_poste(poste: PosteSchema, usuario_logado: UsuarioModel = Depends(
 
 
 # GET Postes
-@router.get('/', response_model=List[PosteSchema])
+@router.get('/', response_model=List[PosteSchemaRead])
 async def get_postes(db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
     async with db as session:
         query = select(PosteModel)
@@ -59,7 +59,7 @@ async def get_postes(db: AsyncSession = Depends(get_session), usuario_logado: Us
 
 
 # GET Poste
-@router.get('/{poste_id}', response_model=PosteSchema, status_code=status.HTTP_200_OK)
+@router.get('/{poste_id}', response_model=PosteSchemaRead, status_code=status.HTTP_200_OK)
 async def get_poste(poste_id: int, db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(PosteModel).filter(PosteModel.id == poste_id)
@@ -74,14 +74,15 @@ async def get_poste(poste_id: int, db: AsyncSession = Depends(get_session)):
 
 
 # PUT Poste
-@router.put('/{poste_id}', response_model=PosteSchema, status_code=status.HTTP_202_ACCEPTED)
-async def put_poste(poste_id: int, poste: PosteSchema, db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
+@router.put('/{poste_id}', response_model=PosteSchemaRead, status_code=status.HTTP_202_ACCEPTED)
+async def put_poste(poste_id: int, poste: PosteSchemaUp, db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
     async with db as session:
         query = select(PosteModel).filter(PosteModel.id == poste_id)
         result = await session.execute(query)
         poste_up: PosteModel = result.scalars().unique().one_or_none()
 
         if poste_up:
+            poste_up.data_atualizacao = datetime.now()
             if poste.proprietario:
                 poste_up.proprietario = poste.proprietario
 
@@ -118,12 +119,6 @@ async def put_poste(poste_id: int, poste: PosteSchema, db: AsyncSession = Depend
             if poste.imagem:
                 poste_up.imagem = poste.imagem
 
-            if poste.data_creacao:
-                poste_up.data_creacao = poste.data_creacao
-
-            if poste.data_atualizacao:
-                poste_up.data_atualizacao = poste.data_atualizacao
-
             if poste.aprovado:
                 poste_up.aprovado = poste.aprovado
 
@@ -152,11 +147,10 @@ async def put_poste(poste_id: int, poste: PosteSchema, db: AsyncSession = Depend
 
 
 # DELETE Poste
-@router.put('/{poste_id}', response_model=PosteSchema, status_code=status.HTTP_202_ACCEPTED)
-async def delete_poste(poste_id: int, poste: PosteSchema, db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
+@router.delete('/{poste_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_poste(poste_id: int, db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
     async with db as session:
-        query = select(PosteModel).filter(PosteModel.id == poste_id).filter(
-            PosteModel.usuario_id == usuario_logado.id)
+        query = select(PosteModel).filter(PosteModel.id == poste_id)
         result = await session.execute(query)
         poste_del: PosteModel = result.scalars().unique().one_or_none()
 
