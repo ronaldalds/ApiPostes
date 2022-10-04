@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 
 from core.deps import get_current_user, get_session
+from core.scr import contains_poly
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from models.poste_model import PosteModel
 from models.usuario_model import UsuarioModel
@@ -11,6 +12,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 router = APIRouter()
+
+
+# GET Postes Poligono
+@router.get('/poly/', response_model=List[PosteSchemaRead])
+async def get_poligono(geometria: str, db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
+    async with db as session:
+        query = select(PosteModel)
+        result = await session.execute(query)
+        postes_poly: List[PosteModel] = result.scalars().unique().all()
+        geometria = [i.split(",") for i in geometria.split(" ")]
+        geometria = list(map(lambda p: (float(p[0]), float(p[1])), geometria))
+        print(geometria)
+        # postes_poly = list(filter(lambda p: contains_poly(
+        #     a=geometria, b=(postes_poly.latitude, postes_poly.longitude)), postes_poly))
+
+        return postes_poly
 
 
 # POST Poste
@@ -54,6 +71,7 @@ async def get_postes(db: AsyncSession = Depends(get_session), usuario_logado: Us
         query = select(PosteModel)
         result = await session.execute(query)
         postes: List[PosteModel] = result.scalars().unique().all()
+        print(postes)
 
         return postes
 
@@ -65,7 +83,7 @@ async def get_poste(poste_id: int, db: AsyncSession = Depends(get_session)):
         query = select(PosteModel).filter(PosteModel.id == poste_id)
         result = await session.execute(query)
         poste: PosteModel = result.scalars().unique().one_or_none()
-
+        print(poste_id)
         if poste:
             return poste
         else:

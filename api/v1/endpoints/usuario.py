@@ -45,14 +45,14 @@ async def post_usuario(usuario: UsuarioSchemaCreate, db: AsyncSession = Depends(
 
 
 # GET usuarios
-@router.get('/', response_model=List[UsuarioSchemaBase], status_code=status.HTTP_200_OK)
-async def get_usuarios(db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
-    async with db as session:
-        query = select(UsuarioModel)
-        result = await session.execute(query)
-        usuarios: List[UsuarioSchemaBase] = result.scalars().unique().all()
+# @router.get('/', response_model=List[UsuarioSchemaBase], status_code=status.HTTP_200_OK)
+# async def get_usuarios(db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
+#     async with db as session:
+#         query = select(UsuarioModel)
+#         result = await session.execute(query)
+#         usuarios: List[UsuarioSchemaBase] = result.scalars().unique().all()
 
-        return usuarios
+#         return usuarios
 
 
 # GET usuario

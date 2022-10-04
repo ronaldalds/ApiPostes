@@ -1,4 +1,5 @@
 from core.configs import settings
+from core.security import gerar_hash_senha
 from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer,
                         String)
 from sqlalchemy.orm import relationship

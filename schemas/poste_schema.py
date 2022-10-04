@@ -53,7 +53,7 @@ class PosteSchemaCreate(PosteSchemaBase):
     imagem: Optional[HttpUrl]
     data_creacao: Optional[date]
     data_aprovacao: Optional[date]
-    protocolo_aprovacao: Optional[str] = None
+    protocolo_aprovacao: Optional[str]
     descricao: Optional[str]
 
     @validator("data_creacao", pre=True)
