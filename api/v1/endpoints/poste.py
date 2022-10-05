@@ -23,9 +23,8 @@ async def get_poligono(geometria: str, db: AsyncSession = Depends(get_session), 
         postes_poly: List[PosteModel] = result.scalars().unique().all()
         geometria = [i.split(",") for i in geometria.split(" ")]
         geometria = list(map(lambda p: (float(p[0]), float(p[1])), geometria))
-        print(geometria)
-        # postes_poly = list(filter(lambda p: contains_poly(
-        #     a=geometria, b=(postes_poly.latitude, postes_poly.longitude)), postes_poly))
+        postes_poly = list(filter(lambda p: contains_poly(
+            a=geometria, b=(p.latitude, p.longitude)), postes_poly))
 
         return postes_poly
 

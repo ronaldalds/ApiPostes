@@ -46,9 +46,8 @@ async def post_usuario(usuario: UsuarioSchemaCreate, db: AsyncSession = Depends(
         raise HTTPException(detail='Você não pode criar usuarios, contate um administrador do sistema!',
                             status_code=status.HTTP_401_UNAUTHORIZED)
 
+
 # GET usuarios
-
-
 @router.get('/', response_model=List[UsuarioSchemaBase], status_code=status.HTTP_200_OK)
 async def get_usuarios(db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
     if usuario_logado.eh_admin:
@@ -63,9 +62,8 @@ async def get_usuarios(db: AsyncSession = Depends(get_session), usuario_logado: 
         raise HTTPException(detail='Você não pode visualizar os usuarios, contate um administrador do sistema!',
                             status_code=status.HTTP_401_UNAUTHORIZED)
 
+
 # GET usuario
-
-
 @router.get('/{usuario_id}', response_model=UsuarioSchemaPostes, status_code=status.HTTP_200_OK)
 async def get_usuario(usuario_id: int, db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
     async with db as session:
@@ -126,11 +124,14 @@ async def delete_usuario(usuario_id: int, db: AsyncSession = Depends(get_session
         usuario_del: UsuarioSchemaPostes = result.scalars().unique().one_or_none()
 
         if usuario_del:
-            await session.delete(usuario_del)
-            await session.commit()
+            if usuario_logado.eh_admin:
+                await session.delete(usuario_del)
+                await session.commit()
 
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
-
+                return Response(status_code=status.HTTP_204_NO_CONTENT)
+            else:
+                raise HTTPException(detail='Você não pode deleta usuario, contate um administrador do sistema!',
+                                    status_code=status.HTTP_401_UNAUTHORIZED)
         else:
             raise HTTPException(detail='Usuário não encontrado.',
                                 status_code=status.HTTP_404_NOT_FOUND)
