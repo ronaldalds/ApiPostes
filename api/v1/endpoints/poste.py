@@ -78,7 +78,7 @@ async def get_postes(db: AsyncSession = Depends(get_session), usuario_logado: Us
 
 # GET Poste
 @router.get('/{poste_id}', response_model=PosteSchemaRead, status_code=status.HTTP_200_OK)
-async def get_poste(poste_id: int, db: AsyncSession = Depends(get_session)):
+async def get_poste(poste_id: int, db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
     async with db as session:
         query = select(PosteModel).filter(PosteModel.id == poste_id)
         result = await session.execute(query)

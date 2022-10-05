@@ -24,38 +24,48 @@ def get_logado(usuario_logado: UsuarioModel = Depends(get_current_user)):
 
 # POST / Signup
 @router.post('/signup', status_code=status.HTTP_201_CREATED, response_model=UsuarioSchemaBase, summary='Criação de usuários')
-async def post_usuario(usuario: UsuarioSchemaCreate, db: AsyncSession = Depends(get_session)):
+async def post_usuario(usuario: UsuarioSchemaCreate, db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
     novo_usuario: UsuarioModel = UsuarioModel(
         nome=usuario.nome,
         sobrenome=usuario.sobrenome,
         email=usuario.email,
         senha=gerar_hash_senha(usuario.senha)
     )
+    if usuario_logado.eh_admin:
+        async with db as session:
+            try:
+                session.add(novo_usuario)
+                await session.commit()
 
-    async with db as session:
-        try:
-            session.add(novo_usuario)
-            await session.commit()
-
-            return novo_usuario
-        except IntegrityError:
-            raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
-                                detail='Já existe email cadastrado'
-                                )
-
+                return novo_usuario
+            except IntegrityError:
+                raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                                    detail='Já existe email cadastrado'
+                                    )
+    else:
+        raise HTTPException(detail='Você não pode criar usuarios, contate um administrador do sistema!',
+                            status_code=status.HTTP_401_UNAUTHORIZED)
 
 # GET usuarios
-# @router.get('/', response_model=List[UsuarioSchemaBase], status_code=status.HTTP_200_OK)
-# async def get_usuarios(db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
-#     async with db as session:
-#         query = select(UsuarioModel)
-#         result = await session.execute(query)
-#         usuarios: List[UsuarioSchemaBase] = result.scalars().unique().all()
 
-#         return usuarios
 
+@router.get('/', response_model=List[UsuarioSchemaBase], status_code=status.HTTP_200_OK)
+async def get_usuarios(db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
+    if usuario_logado.eh_admin:
+
+        async with db as session:
+            query = select(UsuarioModel)
+            result = await session.execute(query)
+            usuarios: List[UsuarioSchemaBase] = result.scalars().unique().all()
+
+            return usuarios
+    else:
+        raise HTTPException(detail='Você não pode visualizar os usuarios, contate um administrador do sistema!',
+                            status_code=status.HTTP_401_UNAUTHORIZED)
 
 # GET usuario
+
+
 @router.get('/{usuario_id}', response_model=UsuarioSchemaPostes, status_code=status.HTTP_200_OK)
 async def get_usuario(usuario_id: int, db: AsyncSession = Depends(get_session), usuario_logado: UsuarioModel = Depends(get_current_user)):
     async with db as session:
@@ -79,27 +89,31 @@ async def put_usuario(usuario_id: int, usuario: UsuarioSchemaUp, db: AsyncSessio
         usuario_up: UsuarioSchemaPostes = result.scalars().unique().one_or_none()
 
         if usuario_up:
-            if usuario.nome:
-                usuario_up.nome = usuario.nome
+            if (usuario_up.id == usuario_logado.id) or usuario_logado.eh_admin:
+                if usuario.nome:
+                    usuario_up.nome = usuario.nome
 
-            if usuario.sobrenome:
-                usuario_up.sobrenome = usuario.sobrenome
+                if usuario.sobrenome:
+                    usuario_up.sobrenome = usuario.sobrenome
 
-            if usuario.email:
-                usuario_up.email = usuario.email
+                if usuario.email:
+                    usuario_up.email = usuario.email
 
-            if usuario.senha:
-                usuario_up.senha = gerar_hash_senha(usuario.senha)
+                if usuario.senha:
+                    usuario_up.senha = gerar_hash_senha(usuario.senha)
 
-            if usuario.eh_admin:
-                usuario_up.eh_admin = usuario.eh_admin
+                if usuario.eh_admin:
+                    usuario_up.eh_admin = usuario.eh_admin
 
-            await session.commit()
+                await session.commit()
 
-            return usuario_up
+                return usuario_up
+            else:
+                raise HTTPException(detail='Você não pode fazer alterações',
+                                    status_code=status.HTTP_401_UNAUTHORIZED)
 
         else:
-            raise HTTPException(detail='Usuário não encontrado.',
+            raise HTTPException(detail='Usuário não encontrado',
                                 status_code=status.HTTP_404_NOT_FOUND)
 
 

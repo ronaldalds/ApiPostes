@@ -1,8 +1,9 @@
+from email.policy import default
+
 from core.configs import settings
-from core.security import gerar_hash_senha
-from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer,
-                        String)
-from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean, Column, Integer, String
+
+# from sqlalchemy.orm import relationship
 
 
 class UsuarioModel(settings.DBBaseModel):
@@ -14,10 +15,10 @@ class UsuarioModel(settings.DBBaseModel):
     email = Column(String(256), index=True, nullable=False, unique=True)
     senha = Column(String(256), nullable=False)
     eh_admin = Column(Boolean, default=False)
-    postes = relationship(
-        "PosteModel",
-        cascade='all,delete-orphan',
-        back_populates='criador',
-        uselist=True,
-        lazy='joined'
-    )
+    # postes = relationship(
+    #     "PosteModel",
+    #     cascade='all,delete-orphan',
+    #     back_populates='criador',
+    #     uselist=True,
+    #     lazy='joined'
+    # )

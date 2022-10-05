@@ -1,9 +1,9 @@
-import datetime
 
 from core.configs import settings
 from sqlalchemy import (Boolean, Column, Date, Float, ForeignKey, Integer,
                         String)
-from sqlalchemy.orm import relationship
+
+# from sqlalchemy.orm import relationship
 
 
 class PosteModel(settings.DBBaseModel):
@@ -31,5 +31,5 @@ class PosteModel(settings.DBBaseModel):
     longitude = Column(Float, nullable=False)
     descricao = Column(String(256), nullable=True)
     usuario_id = Column(Integer, ForeignKey('usuarios.id'))
-    criador = relationship(
-        "UsuarioModel", back_populates='postes', lazy='joined')
+    # criador = relationship(
+    #     "UsuarioModel", back_populates='postes', lazy='joined')
