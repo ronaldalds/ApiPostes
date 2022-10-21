@@ -1,15 +1,16 @@
 from datetime import datetime
 from typing import List
 
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
 from core.deps import get_current_user, get_session
 from core.scr import contains_poly
-from fastapi import APIRouter, Depends, HTTPException, Response, status
 from models.poste_model import PosteModel
 from models.usuario_model import UsuarioModel
 from schemas.poste_schema import (PosteSchemaCreate, PosteSchemaRead,
                                   PosteSchemaUp)
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 router = APIRouter()
 
