@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-# CMD ["pyhton", "main.py"]
+CMD ["python", "main.py"]
